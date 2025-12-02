@@ -45,11 +45,17 @@ namespace TestProject.Managers {
                     Entries = entries,
                 };
             } else if (File.Exists(fullPath)) {
-                // Will make a separate endpoint for opening a file
+                // If the file is a text or markdown file, send it's contents
+                string? contents = null;
+                var ext = Path.GetExtension(fullPath).ToLower();
+                if (ext == ".txt" || ext == ".md") {
+                    contents = File.ReadAllText(fullPath);
+                }
+
                 return new PathInfo {
                     Path = path,
                     IsDirectory = false,
-                    Entries = null,
+                    FileContents = contents,
                 };
             } else {
                 throw new DirectoryNotFoundException($"The path '{path}' does not exist.");

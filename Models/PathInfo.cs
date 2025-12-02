@@ -3,5 +3,6 @@ namespace TestProject.Models {
         public string? Path { get; set; }
         public bool? IsDirectory { get; set; }
         public List<DirectoryEntry>? Entries { get; set; }
+        public string? FileContents { get; set; }
     }
 }
