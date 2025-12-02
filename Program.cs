@@ -1,3 +1,5 @@
+using TestProject.Managers;
+
 namespace TestProject {
     public class Program {
         public static void Main(string[] args) {
@@ -6,6 +8,8 @@ namespace TestProject {
             // Add services to the container.
 
             builder.Services.AddControllers();
+
+            builder.Services.AddTransient<IStorageManager, StorageManager>();
 
             var app = builder.Build();
 

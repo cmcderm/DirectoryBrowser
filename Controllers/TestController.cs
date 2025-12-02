@@ -13,7 +13,7 @@ namespace TestProject.Controllers {
 
         [HttpGet]
         public string Get() {
-            return "API Response";
+            return "Hello, World!";
         }
     }
 }
