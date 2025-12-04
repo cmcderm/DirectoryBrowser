@@ -85,12 +85,19 @@ namespace TestProject.Managers {
         public async Task<bool> UploadFile(string path, IFormFile formFile) {
             string fullPath = getFullPath(path);
 
-            if (File.Exists(fullPath) || Directory.Exists(fullPath)) {
+            Console.WriteLine($"Received file for path {path} with size {formFile.Length}B");
+
+            string newFilePath = $"{fullPath}/{formFile.FileName}";
+
+            if (File.Exists(newFilePath) || Directory.Exists(newFilePath)) {
+                Console.WriteLine($"File already exists at path {newFilePath}");
                 return false;
             }
 
+            Console.WriteLine($"Creating new file at path {newFilePath}");
+
             // Security issues galore, but beyond the scope of this exercise
-            using (FileStream? newFileStream = File.Create(path)) {
+            using (FileStream? newFileStream = File.Create(newFilePath)) {
                 await formFile.CopyToAsync(newFileStream);
             }
 

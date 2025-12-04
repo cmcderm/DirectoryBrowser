@@ -11,6 +11,24 @@ const buildLink = (base: string, path: string, target: string): string => {
   }
 }
 
+const uploadFile = (path: string, file?: File) => {
+  if (file === undefined) { return; }
+
+  const form = new FormData();
+  form.append("file", file);
+
+  fetch(`/api/path/upload${path}`,
+    {
+      method: 'POST',
+      body: form
+    }
+  ).then(r => r.json())
+   .then(_ => {
+      console.log("Upload complete");
+      window.location.reload();
+    });
+}
+
 export const showFolder = (app: HTMLElement, params: Record<string, string>) => {
   const contentContainer = document.createElement('div');
   contentContainer.classList.add('content-container');
@@ -51,11 +69,24 @@ export const showFolder = (app: HTMLElement, params: Record<string, string>) => 
       titleHeader.textContent = path;
       folderContainer.append(titleHeader);
 
+      if (pathInfo.isDirectory) {
+        let uploadText = document.createElement('span');
+        uploadText.textContent = "Upload File: "
+        folderContainer.appendChild(uploadText);
+
+        let input = document.createElement('input');
+        input.type = "file";
+        input.onchange = () => {
+          if (input.files && input.files.length > 0) {
+            uploadFile(path, input.files[0]);
+          }
+        }
+        folderContainer.appendChild(input);
+      }
+
       // Create each folder or file entry
       if (pathInfo && pathInfo.entries) {
         for (const entry of pathInfo.entries) {
-          console.log(entry);
-
           const entryElement = document.createElement('div');
           entryElement.classList.add('folder-entry');
           folderContainer.appendChild(entryElement);
@@ -64,6 +95,16 @@ export const showFolder = (app: HTMLElement, params: Record<string, string>) => 
           linkElement.href = buildLink('/app', path, entry.name ?? '');
           linkElement.textContent = entry.name ?? '';
           entryElement.appendChild(linkElement);
+
+          if (!entry.isDirectory) {
+            console.log(entry);
+            const downloadLinkElement = document.createElement('button');
+            downloadLinkElement.textContent = 'Download';
+            downloadLinkElement.onclick = () => {
+              window.location.href = `/api/path/download${path}/${entry.name}`
+            }
+            entryElement.appendChild(downloadLinkElement);
+          }
         }
       }
 
@@ -78,3 +119,4 @@ export const showFolder = (app: HTMLElement, params: Record<string, string>) => 
       console.error('Error fetching path info:', err);
     });
 }
+
