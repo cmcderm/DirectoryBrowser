@@ -21,6 +21,12 @@ namespace TestProject {
 
             app.MapControllers();
 
+            app.MapGet("/", ctx =>
+            {
+                ctx.Response.Redirect("/app");
+                return Task.CompletedTask;
+            });
+
             app.MapFallbackToFile("/app/{*path}", "index.html");
 
             app.Run();

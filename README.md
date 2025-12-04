@@ -8,13 +8,11 @@ Testing was done with postman.
 ## Running the project
 
 1. Clone the repository.
-2. Navigate to the project directory.
-3. Run `dotnet run` to start the backend server.
-4. In a new terminal, navigate to the frontend directory.
-5. Run `npm install` to install dependencies.
-6. Run `npm start` to start the frontend development server.
+1. Navigate to the project directory.
+1. Run `npm install && tsc` to install dependencies and transpile the typescript.
+1. Run `dotnet run` to start the backend server.
 
 ## Overview
 
 The primary endpoint is at /api/path/<path>, allowing for easy browsing of directories.
-The frontend also allows for simple browsing of directories and files, where the URL path is localhost:3000/<path>.
+The frontend also allows for simple browsing of directories and files, where the URL path is localhost:3000/app<path>.
