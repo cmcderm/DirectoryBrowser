@@ -21,6 +21,8 @@ namespace TestProject {
 
             app.MapControllers();
 
+            app.MapFallbackToFile("/app/{*path}", "index.html");
+
             app.Run();
         }
     }

@@ -1,0 +1,24 @@
+/* index.css */
+
+div#app {
+  width: 100%;
+}
+
+.content-container {
+  margin: 20vh;
+}
+
+.folder-container {
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+}
+
+.folder-entry {
+  min-width: 0;
+  padding: 1em;
+  margin: .5em;
+  border: 1px solid black;
+  border-radius: .25em;
+}
+

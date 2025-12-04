@@ -3,7 +3,7 @@ using TestProject.Managers;
 
 namespace TestProject.Controllers {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class PathController : ControllerBase {
 
         private readonly ILogger<PathController> _logger;
