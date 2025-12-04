@@ -17,7 +17,14 @@ namespace TestProject.Managers {
         }
 
         private string getFullPath(string relativePath) {
-            return Path.Combine(_basePath, relativePath);
+            string path = Path.Combine(_basePath, relativePath);
+            // Path.Combine() allows relativePath to override the _basePath and
+            // allow the user to browse the entire server, this checks if the
+            // new path has escaped the _basePath
+            if (!path.Contains(_basePath)) {
+              path = _basePath;
+            }
+            return path;
         }
 
         public PathInfo? GetPathInfo(string path) {
@@ -35,12 +42,12 @@ namespace TestProject.Managers {
                     files.Select(f => new DirectoryEntry {
                         Name = Path.GetFileName(f),
                         IsDirectory = false,
-
                     })
                 ).ToList();
 
                 return new PathInfo {
                     Path = path,
+                    FullPath = fullPath,
                     IsDirectory = true,
                     Entries = entries,
                 };
@@ -54,6 +61,7 @@ namespace TestProject.Managers {
 
                 return new PathInfo {
                     Path = path,
+                    FullPath = fullPath,
                     IsDirectory = false,
                     FileContents = contents,
                 };
