@@ -69,6 +69,11 @@ export const showFolder = (app: HTMLElement, params: Record<string, string>) => 
       titleHeader.textContent = path;
       folderContainer.append(titleHeader);
 
+      let dirInfoContainer = document.createElement('div');
+      dirInfoContainer.textContent =
+        `${pathInfo.folderCount} folders, ${pathInfo.fileCount} files, total size ${pathInfo.size}B`;
+      folderContainer.append(dirInfoContainer);
+
       if (pathInfo.isDirectory) {
         let uploadText = document.createElement('span');
         uploadText.textContent = "Upload File: "
@@ -95,6 +100,11 @@ export const showFolder = (app: HTMLElement, params: Record<string, string>) => 
           linkElement.href = buildLink('/app', path, entry.name ?? '');
           linkElement.textContent = entry.name ?? '';
           entryElement.appendChild(linkElement);
+
+          const infoContainer = document.createElement('div');
+          infoContainer.textContent =
+            `${entry.folderCount} folders, ${entry.fileCount} files, total size ${entry.size}B`;
+          linkElement.appendChild(infoContainer);
 
           if (!entry.isDirectory) {
             console.log(entry);
