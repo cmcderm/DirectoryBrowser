@@ -69,5 +69,32 @@ namespace TestProject.Managers {
                 throw new DirectoryNotFoundException($"The path '{path}' does not exist.");
             }
         }
+
+        public FileInfo? GetFileInfo(string path) {
+            string fullPath = getFullPath(path);
+
+            if (File.Exists(fullPath)) {
+                FileInfo fileInfo = new FileInfo(fullPath);
+
+                return fileInfo;
+            } else {
+                return null;
+            }
+        }
+
+        public async Task<bool> UploadFile(string path, IFormFile formFile) {
+            string fullPath = getFullPath(path);
+
+            if (File.Exists(fullPath) || Directory.Exists(fullPath)) {
+                return false;
+            }
+
+            // Security issues galore, but beyond the scope of this exercise
+            using (FileStream? newFileStream = File.Create(path)) {
+                await formFile.CopyToAsync(newFileStream);
+            }
+
+            return true;
+        }
     }
 }
