@@ -27,6 +27,47 @@ namespace TestProject.Managers {
             return path;
         }
 
+        private bool isSymLink(string fullPath) {
+            if (!Directory.Exists(fullPath)) { return false; }
+
+            DirectoryInfo info = new DirectoryInfo(fullPath);
+
+            return info.LinkTarget is not null;
+        }
+
+        private (int, int, long) calcCountsAndSize(string fullPath) {
+            if (File.Exists(fullPath)) {
+                FileInfo info = new FileInfo(fullPath);
+                return (0, 0, info.Length);
+            }
+
+            if (!Directory.Exists(fullPath)) { return (0, 0, 0); }
+
+            // Just in case, symlinks don't exist don't want infinite loops
+            if (isSymLink(fullPath)) { return (0, 0, 0); }
+
+            int folderCount = 0;
+            int fileCount = 0;
+            long size = 0;
+
+            var dirs = Directory.EnumerateDirectories(fullPath);
+            var files = Directory.EnumerateFiles(fullPath);
+
+            folderCount += dirs.Count();
+            fileCount += files.Count();
+
+            foreach (string entry in dirs.Concat(files)) {
+                (int nextFolderCount, int nextFileCount, long nextSize)
+                    = calcCountsAndSize(entry);
+
+                folderCount += nextFolderCount;
+                fileCount += nextFileCount;
+                size += nextSize;
+            }
+
+            return (folderCount, fileCount, size);
+        }
+
         public PathInfo? GetPathInfo(string path) {
             string fullPath = getFullPath(path);
 
@@ -35,21 +76,38 @@ namespace TestProject.Managers {
                 var dirs = Directory.EnumerateDirectories(fullPath);
                 var files = Directory.EnumerateFiles(fullPath);
 
-                var entries = dirs.Select(d => new DirectoryEntry {
-                    Name = Path.GetFileName(d),
-                    IsDirectory = true,
+                var entries = dirs.Select(d => {
+                        (int dc, int fc, long s) = calcCountsAndSize(d);
+                        return new DirectoryEntry {
+                            Name = Path.GetFileName(d),
+                            IsDirectory = true,
+                            FolderCount = dc,
+                            FileCount = fc,
+                            Size = s,
+                        };
                 }).Concat(
-                    files.Select(f => new DirectoryEntry {
-                        Name = Path.GetFileName(f),
-                        IsDirectory = false,
+                    files.Select(f => {
+                        (int dc, int fc, long s) = calcCountsAndSize(f);
+                        return new DirectoryEntry {
+                          Name = Path.GetFileName(f),
+                          IsDirectory = false,
+                          Size = s,
+                        };
                     })
                 ).ToList();
+
+                (int folderCount, int fileCount, long size) =
+                    calcCountsAndSize(fullPath);
 
                 return new PathInfo {
                     Path = path,
                     FullPath = fullPath,
                     IsDirectory = true,
                     Entries = entries,
+                    FolderCount = folderCount,
+                    FileCount = fileCount,
+                    Size = size,
+                    FileContents = null,
                 };
             } else if (File.Exists(fullPath)) {
                 // If the file is a text or markdown file, send it's contents
@@ -59,10 +117,13 @@ namespace TestProject.Managers {
                     contents = File.ReadAllText(fullPath);
                 }
 
+                (_, _, long size) = calcCountsAndSize(fullPath);
+
                 return new PathInfo {
                     Path = path,
                     FullPath = fullPath,
                     IsDirectory = false,
+                    Size = size,
                     FileContents = contents,
                 };
             } else {
